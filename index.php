@@ -1,4 +1,4 @@
 <?php
-echo "<h1>NoticeDiff</h1>";
-echo "<p>PHP is running. Version: " . phpversion() . "</p>";
-echo "<p>Server time: " . date('Y-m-d H:i:s T') . "</p>";
+require_once __DIR__ . '/includes/auth.php';
+header('Location: ' . BASE_URL . (isLoggedIn() ? '/home.php' : '/auth/login.php'));
+exit;
