@@ -23,35 +23,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $stmt->fetch();
 
     if ($user && $user['is_active'] && password_verify($pw, $user['password_hash'])) {
-        session_regenerate_id(true);   // new session ID after login
+        session_regenerate_id(true);
         $_SESSION['user_id']   = (int)$user['id'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['role']      = $user['role'];
         header('Location: ' . BASE_URL . '/home.php');
         exit;
     }
-    // One generic message: do not reveal whether the email exists.
     $error = 'Invalid email or password.';
 }
 
-$pageTitle = 'Log In';
+$pageTitle = 'Log in';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
 ?>
-<div class="card narrow">
-  <h1>Log in</h1>
-  <p class="tagline">Every Change. Clearly Communicated.</p>
+<div class="auth">
+  <?php require __DIR__ . '/../includes/auth_panel.php'; ?>
+  <section class="auth-main">
+    <div class="auth-box">
+      <h1>Welcome back</h1>
+      <p class="lead">Log in to see your timetable and recent changes.</p>
 
-  <?php if ($flash): ?><div class="success"><?= e($flash) ?></div><?php endif; ?>
-  <?php if ($error): ?><div class="error"><?= e($error) ?></div><?php endif; ?>
+      <?php if ($flash): ?><div class="success" role="status"><?= e($flash) ?></div><?php endif; ?>
+      <?php if ($error): ?><div class="error" role="alert"><?= e($error) ?></div><?php endif; ?>
 
-  <form method="post">
-    <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" value="<?= e($email) ?>" required>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" required>
-    <button type="submit" class="btn">Log in</button>
-  </form>
-  <p>New student? <a href="register.php">Create an account</a></p>
+      <form method="post" data-loading="Logging in...">
+        <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" value="<?= e($email) ?>" autocomplete="email" required>
+        <label for="password">Password</label>
+        <div class="pw">
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" data-toggle="password" aria-label="Show password">Show</button>
+        </div>
+        <p class="hint">Forgot your password? Ask your timetable coordinator to reset it.</p>
+        <button type="submit" class="btn btn-block">Log in</button>
+      </form>
+      <p class="auth-alt">New student? <a href="register.php">Create an account</a></p>
+    </div>
+  </section>
 </div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

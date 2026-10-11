@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ' . BASE_URL . '/auth/login.php');
             exit;
         } catch (PDOException $ex) {
-            if ($ex->getCode() === '23000') {      // duplicate email
+            if ($ex->getCode() === '23000') {
                 $errors[] = 'That email is already registered.';
             } else {
                 error_log($ex->getMessage());
@@ -51,33 +51,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$pageTitle = 'Sign Up';
+$pageTitle = 'Sign up';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
 ?>
-<div class="card narrow">
-  <h1>Create account</h1>
-  <p class="tagline">Student registration</p>
+<div class="auth">
+  <?php require __DIR__ . '/../includes/auth_panel.php'; ?>
+  <section class="auth-main">
+    <div class="auth-box">
+      <h1>Create your account</h1>
+      <p class="lead">Student sign-up. Instructor and administrator accounts are created by the timetable coordinator.</p>
 
-  <div id="js-errors" class="error" style="display:none"></div>
-  <?php if ($errors): ?>
-    <div class="error"><ul>
-      <?php foreach ($errors as $err): ?><li><?= e($err) ?></li><?php endforeach; ?>
-    </ul></div>
-  <?php endif; ?>
+      <div id="js-errors" class="error" role="alert" style="display:none"></div>
+      <?php if ($errors): ?>
+        <div class="error" role="alert"><ul>
+          <?php foreach ($errors as $err): ?><li><?= e($err) ?></li><?php endforeach; ?>
+        </ul></div>
+      <?php endif; ?>
 
-  <form method="post" data-validate="register" novalidate>
-    <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
-    <label for="full_name">Full name</label>
-    <input type="text" id="full_name" name="full_name" value="<?= e($name) ?>" required>
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" value="<?= e($email) ?>" required>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" required>
-    <p class="hint">At least 8 characters.</p>
-    <label for="confirm_password">Confirm password</label>
-    <input type="password" id="confirm_password" name="confirm_password" required>
-    <button type="submit" class="btn">Sign up</button>
-  </form>
-  <p>Already registered? <a href="login.php">Log in</a></p>
+      <form method="post" data-validate="register" data-loading="Creating account..." novalidate>
+        <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
+        <label for="full_name">Full name</label>
+        <input type="text" id="full_name" name="full_name" value="<?= e($name) ?>" autocomplete="name" required>
+        <label for="email">University email</label>
+        <input type="email" id="email" name="email" value="<?= e($email) ?>" autocomplete="email" required>
+        <label for="password">Password</label>
+        <div class="pw">
+          <input type="password" id="password" name="password" autocomplete="new-password" required>
+          <button type="button" class="pw-toggle" data-toggle="password" aria-label="Show password">Show</button>
+        </div>
+        <label for="confirm_password">Confirm password</label>
+        <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+        <ul class="checks" aria-live="polite">
+          <li data-rule="len">At least 8 characters</li>
+          <li data-rule="match">Both passwords match</li>
+        </ul>
+        <button type="submit" class="btn btn-block">Create account</button>
+      </form>
+      <p class="auth-alt">Already registered? <a href="login.php">Log in</a></p>
+    </div>
+  </section>
 </div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>
