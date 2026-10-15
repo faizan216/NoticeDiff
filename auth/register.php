@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = getDB()->prepare(
                 "INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, 'student')"
             );
+            
             $stmt->execute([$name, $email, password_hash($pw, PASSWORD_DEFAULT)]);
             $_SESSION['flash'] = 'Account created. Please log in.';
             header('Location: ' . BASE_URL . '/auth/login.php');
@@ -88,7 +89,7 @@ require __DIR__ . '/../includes/header.php';
         </ul>
         <button type="submit" class="btn btn-block">Create account</button>
       </form>
-      <p class="auth-alt">Already registered? <a href="login.php">Log in</a></p>
+      <p class="auth-alt">Already registered? <a href="<?= BASE_URL ?>/auth/login.php">Log in</a></p>
     </div>
   </section>
 </div>

@@ -16,21 +16,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = strtolower(trim($_POST['email'] ?? ''));
     $pw    = $_POST['password'] ?? '';
 
-    $stmt = getDB()->prepare(
-        'SELECT id, full_name, password_hash, role, is_active FROM users WHERE email = ?'
-    );
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    try {
+        $stmt = getDB()->prepare(
+            'SELECT id, full_name, password_hash, role, is_active FROM users WHERE email = ?'
+        );
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
 
-    if ($user && $user['is_active'] && password_verify($pw, $user['password_hash'])) {
-        session_regenerate_id(true);
-        $_SESSION['user_id']   = (int)$user['id'];
-        $_SESSION['full_name'] = $user['full_name'];
-        $_SESSION['role']      = $user['role'];
-        header('Location: ' . BASE_URL . '/home.php');
-        exit;
+        if ($user && $user['is_active'] && password_verify($pw, $user['password_hash'])) {
+            session_regenerate_id(true);
+            $_SESSION['user_id']   = (int)$user['id'];
+            $_SESSION['full_name'] = $user['full_name'];
+            $_SESSION['role']      = $user['role'];
+            header('Location: ' . BASE_URL . '/home.php');
+            exit;
+        }
+        $error = 'Invalid email or password.';
+    } catch (PDOException $ex) {
+        error_log($ex->getMessage());
+        $error = 'Database connection error. Please try again later.';
     }
-    $error = 'Invalid email or password.';
 }
 
 $pageTitle = 'Log in';
@@ -59,7 +64,7 @@ require __DIR__ . '/../includes/header.php';
         <p class="hint">Forgot your password? Ask your timetable coordinator to reset it.</p>
         <button type="submit" class="btn btn-block">Log in</button>
       </form>
-      <p class="auth-alt">New student? <a href="register.php">Create an account</a></p>
+      <p class="auth-alt">New student? <a href="<?= BASE_URL ?>/auth/register.php">Create an account</a></p>
     </div>
   </section>
 </div>

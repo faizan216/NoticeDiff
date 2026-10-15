@@ -27,13 +27,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('submit', function (event) {
       var problems = [];
-      if (form.full_name.value.trim().length < 2) problems.push('Enter your full name.');
+      if (form.full_name.value.trim().length < 2) problems.push('Enter your full name (at least 2 characters).');
+      var emailVal = form.email ? form.email.value.trim() : '';
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailVal || !emailRegex.test(emailVal)) problems.push('Enter a valid email address.');
       if (form.password.value.length < 8) problems.push('Password must be at least 8 characters.');
       if (form.password.value !== form.confirm_password.value) problems.push('Passwords do not match.');
       if (problems.length > 0) {
         event.preventDefault();
         box.textContent = problems.join(' ');
         box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
       }
     });
   }

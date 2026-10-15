@@ -2,7 +2,24 @@
 // includes/auth.php - sessions, access control, CSRF helpers.
 require_once __DIR__ . '/../config/database.php';
 
-define('BASE_URL', '/noticediff');
+if (!defined('BASE_URL')) {
+    $env = loadEnv(SECRETS_FILE);
+    if (!empty($env['BASE_URL'])) {
+        define('BASE_URL', rtrim($env['BASE_URL'], '/'));
+    } else {
+        $script = $_SERVER['SCRIPT_NAME'] ?? '';
+        $scriptDir = str_replace('\\', '/', dirname($script));
+        if ($scriptDir === '.' || $scriptDir === '/') {
+            $parts = [];
+        } else {
+            $parts = array_values(array_filter(explode('/', $scriptDir)));
+            if (!empty($parts) && in_array(end($parts), ['auth', 'includes', 'database', 'admin', 'instructor', 'student', 'timetable', 'change_requests', 'history', 'notifications', 'settings'], true)) {
+                array_pop($parts);
+            }
+        }
+        define('BASE_URL', !empty($parts) ? '/' . implode('/', $parts) : '');
+    }
+}
 
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', '1');
